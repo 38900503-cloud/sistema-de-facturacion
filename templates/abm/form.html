@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import campo_formulario %}
+{% block title %}{{ accion }} {{ abm.singular }}{% endblock %}
+{% block encabezado %}
+  {% if accion == 'Nuevo' %}Nuevo {{ abm.singular }}{% else %}Modificar {{ abm.singular }} #{{ id_registro }}{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-8 col-lg-6">
+
+    {% if errores %}
+      <div class="alert alert-danger">
+        <h5><i class="icon fas fa-ban"></i> Revisá los datos:</h5>
+        <ul class="mb-0">
+          {% for campo, mensaje in errores.items() %}<li>{{ mensaje }}</li>{% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    <div class="card card-primary">
+      <div class="card-header"><h3 class="card-title">Datos del {{ abm.singular }}</h3></div>
+      <form method="post" novalidate>
+        <div class="card-body">
+          {# Los campos se generan con un for sobre la lista de la entidad: no se declaran a mano #}
+          {% for campo in campos %}
+            {{ campo_formulario(campo, reglas[campo], valores.get(campo), errores.get(campo)) }}
+          {% endfor %}
+          <small class="text-muted"><span class="text-danger">*</span> campo obligatorio</small>
+        </div>
+        <div class="card-footer">
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
+          <a href="{{ url_for(abm.nombre ~ '.lista') }}" class="btn btn-default">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

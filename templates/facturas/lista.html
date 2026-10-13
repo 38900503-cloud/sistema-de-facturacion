@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Consultar facturas{% endblock %}
+{% block encabezado %}Consultar facturas{% endblock %}
+
+{% block content %}
+<div class="card card-outline card-primary">
+  <div class="card-header"><h3 class="card-title"><i class="fas fa-filter"></i> Buscar por cliente o fecha</h3></div>
+  <div class="card-body">
+    <form method="get" class="form-row align-items-end">
+      <div class="col-md-4 form-group">
+        <label>Cliente</label>
+        <select name="cliente" class="form-control">
+          <option value="">Todos</option>
+          {% for c in clientes %}
+            <option value="{{ c.id_cliente }}" {% if c.id_cliente == id_cliente %}selected{% endif %}>{{ c.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3 form-group">
+        <label>Desde</label>
+        <input type="date" name="desde" class="form-control" value="{{ desde or '' }}">
+      </div>
+      <div class="col-md-3 form-group">
+        <label>Hasta</label>
+        <input type="date" name="hasta" class="form-control" value="{{ hasta or '' }}">
+      </div>
+      <div class="col-md-2 form-group">
+        <button class="btn btn-primary btn-block"><i class="fas fa-search"></i> Buscar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">{{ facturas | length }} factura(s)</h3>
+    <div class="card-tools">
+      <a href="{{ url_for('facturas.nueva') }}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Emitir factura</a>
+    </div>
+  </div>
+  <div class="card-body p-0 table-responsive">
+    <table class="table table-hover mb-0">
+      <thead><tr><th>N°</th><th>Fecha</th><th>Cliente</th><th class="text-right">Total</th><th class="text-right">Detalle</th></tr></thead>
+      <tbody>
+      {% for f in facturas %}
+        <tr>
+          <td>{{ '%08d' | format(f.id_factura) }}</td>
+          <td>{{ f.fecha | formato_fecha }}</td>
+          <td>{{ f.cliente.nombre }}</td>
+          <td class="text-right">{{ f.total | moneda }}</td>
+          <td class="text-right">
+            <a href="{{ url_for('facturas.detalle', id_factura=f.id_factura) }}" class="btn btn-xs btn-info"><i class="fas fa-eye"></i> Ver detalle</a>
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="5" class="text-center text-muted">No se encontraron facturas con esos filtros.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Facturas por cliente{% endblock %}
+{% block encabezado %}Reporte: facturas por cliente{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-body p-0 table-responsive">
+    <table class="table table-striped mb-0">
+      <thead><tr><th>Cliente</th><th class="text-right">Cant. facturas</th><th class="text-right">Total facturado</th><th></th></tr></thead>
+      <tbody>
+      {% for f in filas %}
+        <tr>
+          <td>{{ f.nombre }}</td>
+          <td class="text-right">{{ f.cantidad }}</td>
+          <td class="text-right">{{ f.total | moneda }}</td>
+          <td class="text-right">
+            {% if f.cantidad > 0 %}
+              <a href="{{ url_for('facturas.lista', cliente=f.id_cliente) }}" class="btn btn-xs btn-info">Ver facturas</a>
+            {% endif %}
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="4" class="text-center text-muted">No hay clientes cargados.</td></tr>
+      {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr><th>TOTAL GENERAL</th><th></th><th class="text-right">{{ total_general | moneda }}</th><th></th></tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+{% endblock %}

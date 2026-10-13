@@ -1,0 +1,8 @@
+/* Ajustes propios sobre AdminLTE */
+.small-box h3.monto { font-size: 1.8rem; }
+
+/* Al imprimir una factura se ocultan el menú y los botones */
+@media print {
+  .main-header, .main-sidebar, .main-footer, .no-print, .alert { display: none !important; }
+  .content-wrapper { margin-left: 0 !important; }
+}

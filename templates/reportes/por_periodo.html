@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Ventas por período{% endblock %}
+{% block encabezado %}Reporte: ventas por período{% endblock %}
+
+{% block content %}
+<div class="card card-outline card-primary">
+  <div class="card-body">
+    <form method="get" class="form-row align-items-end">
+      <div class="col-md-4 form-group">
+        <label>Desde</label>
+        <input type="date" name="desde" class="form-control" value="{{ desde }}">
+      </div>
+      <div class="col-md-4 form-group">
+        <label>Hasta</label>
+        <input type="date" name="hasta" class="form-control" value="{{ hasta }}">
+      </div>
+      <div class="col-md-4 form-group">
+        <button class="btn btn-primary btn-block"><i class="fas fa-search"></i> Consultar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="info-box">
+      <span class="info-box-icon bg-info"><i class="fas fa-file-invoice"></i></span>
+      <div class="info-box-content">
+        <span class="info-box-text">Facturas en el período</span>
+        <span class="info-box-number">{{ cantidad_total }}</span>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="info-box">
+      <span class="info-box-icon bg-success"><i class="fas fa-dollar-sign"></i></span>
+      <div class="info-box-content">
+        <span class="info-box-text">Total vendido</span>
+        <span class="info-box-number">{{ total_general | moneda }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><h3 class="card-title">Ventas por día, del {{ desde | formato_fecha }} al {{ hasta | formato_fecha }}</h3></div>
+  <div class="card-body p-0 table-responsive">
+    <table class="table table-striped mb-0">
+      <thead><tr><th>Fecha</th><th class="text-right">Cant. facturas</th><th class="text-right">Total</th></tr></thead>
+      <tbody>
+      {% for f in filas %}
+        <tr>
+          <td><a href="{{ url_for('facturas.lista', desde=f.fecha, hasta=f.fecha) }}">{{ f.fecha | formato_fecha }}</a></td>
+          <td class="text-right">{{ f.cantidad }}</td>
+          <td class="text-right">{{ f.total | moneda }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="3" class="text-center text-muted">No hubo ventas en el período.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

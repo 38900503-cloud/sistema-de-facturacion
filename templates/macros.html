@@ -1,0 +1,22 @@
+{# Macro reutilizable: dibuja un campo del formulario a partir de su regla en entidades.py #}
+{% macro campo_formulario(campo, regla, valor, error) %}
+  <div class="form-group">
+    <label for="{{ campo }}">
+      {{ regla.etiqueta or campo }}
+      {% if regla.obligatorio is not defined or regla.obligatorio %}<span class="text-danger">*</span>{% endif %}
+    </label>
+    {% set modo = {'entero': 'numeric', 'decimal': 'decimal', 'numero': 'numeric', 'email': 'email'} %}
+    <input type="text" id="{{ campo }}" name="{{ campo }}"
+           value="{{ valor if valor is not none else '' }}"
+           inputmode="{{ modo.get(regla.tipo, 'text') }}"
+           class="form-control {% if error %}is-invalid{% endif %}">
+    {% if error %}<div class="invalid-feedback">{{ error }}</div>{% endif %}
+  </div>
+{% endmacro %}
+
+{# Muestra un valor en la tabla del listado según el tipo de campo #}
+{% macro valor_celda(valor, regla) %}
+  {%- if regla.tipo == 'decimal' -%}{{ valor | moneda }}
+  {%- elif regla.tipo == 'entero' -%}{{ valor }}
+  {%- else -%}{{ valor or '' }}{%- endif -%}
+{% endmacro %}

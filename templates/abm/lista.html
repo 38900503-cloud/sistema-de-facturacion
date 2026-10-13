@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import valor_celda %}
+{% block title %}{{ abm.titulo }}{% endblock %}
+{% block encabezado %}<i class="fas {{ abm.icono }}"></i> {{ abm.titulo }}{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <form method="get" class="form-inline">
+      <input type="text" name="buscar" value="{{ buscar }}" class="form-control form-control-sm mr-2"
+             placeholder="Buscar por {{ reglas[abm.campo_busqueda].etiqueta | lower }}">
+      <button class="btn btn-sm btn-default"><i class="fas fa-search"></i> Buscar</button>
+      {% if buscar %}<a href="{{ url_for(abm.nombre ~ '.lista') }}" class="btn btn-sm btn-link">Ver todos</a>{% endif %}
+    </form>
+    <div class="card-tools">
+      <a href="{{ url_for(abm.nombre ~ '.nuevo') }}" class="btn btn-primary btn-sm">
+        <i class="fas fa-plus"></i> Nuevo {{ abm.singular }}
+      </a>
+    </div>
+  </div>
+
+  <div class="card-body p-0 table-responsive">
+    <table class="table table-hover table-striped mb-0">
+      <thead>
+        <tr>
+          <th>#</th>
+          {# Las columnas se generan a partir de la lista de campos de la entidad #}
+          {% for campo in campos %}
+            <th class="{% if reglas[campo].tipo in ['decimal', 'entero'] %}text-right{% endif %}">{{ reglas[campo].etiqueta }}</th>
+          {% endfor %}
+          <th class="text-right">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in registros %}
+          {% set id_registro = r | attr(abm.repositorio.pk.key) %}
+          <tr>
+            <td>{{ id_registro }}</td>
+            {% for campo in campos %}
+              <td class="{% if reglas[campo].tipo in ['decimal', 'entero'] %}text-right{% endif %}">{{ valor_celda(r | attr(campo), reglas[campo]) }}</td>
+            {% endfor %}
+            <td class="text-right text-nowrap">
+              <a href="{{ url_for(abm.nombre ~ '.editar', id_registro=id_registro) }}" class="btn btn-xs btn-warning" title="Modificar">
+                <i class="fas fa-edit"></i> Modificar
+              </a>
+              <a href="{{ url_for(abm.nombre ~ '.eliminar', id_registro=id_registro) }}" class="btn btn-xs btn-danger" title="Eliminar">
+                <i class="fas fa-trash"></i> Eliminar
+              </a>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="{{ campos | length + 2 }}" class="text-center text-muted">
+            {% if buscar %}No hay resultados para «{{ buscar }}».{% else %}No hay {{ abm.titulo | lower }} cargados.{% endif %}
+          </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="card-footer text-muted">{{ registros | length }} registro(s)</div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import valor_celda %}
+{% block title %}Eliminar {{ abm.singular }}{% endblock %}
+{% block encabezado %}Eliminar {{ abm.singular }} #{{ id_registro }}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-8 col-lg-6">
+    <div class="card card-danger">
+      <div class="card-header"><h3 class="card-title"><i class="fas fa-exclamation-triangle"></i> Confirmar eliminación</h3></div>
+      <div class="card-body">
+        <p>¿Seguro que querés eliminar este {{ abm.singular }}? Esta acción no se puede deshacer.</p>
+        <dl class="row mb-0">
+          {% for campo in campos %}
+            <dt class="col-sm-4">{{ reglas[campo].etiqueta }}</dt>
+            <dd class="col-sm-8">{{ valor_celda(registro | attr(campo), reglas[campo]) }}</dd>
+          {% endfor %}
+        </dl>
+      </div>
+      <div class="card-footer">
+        <form method="post" class="d-inline">
+          <button type="submit" name="confirmar" value="si" class="btn btn-danger"><i class="fas fa-trash"></i> Sí, eliminar</button>
+          <button type="submit" name="confirmar" value="no" class="btn btn-default">No, volver</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

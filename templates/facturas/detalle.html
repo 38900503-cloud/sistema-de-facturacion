@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Factura {{ factura.id_factura }}{% endblock %}
+{% block encabezado %}Detalle de factura{% endblock %}
+
+{% block content %}
+<div class="invoice p-3 mb-3">
+  <h4>
+    <i class="fas fa-file-invoice-dollar"></i> Factura N° {{ '%08d' | format(factura.id_factura) }}
+    <small class="float-right">Fecha: {{ factura.fecha | formato_fecha }}</small>
+  </h4>
+
+  <div class="row invoice-info my-3">
+    <div class="col-sm-6">
+      <strong>Cliente</strong>
+      <address>
+        {{ factura.cliente.nombre }}<br>
+        {% if factura.cliente.direccion %}{{ factura.cliente.direccion }}<br>{% endif %}
+        Tel: {{ factura.cliente.telefono }}<br>
+        {{ factura.cliente.email }}
+      </address>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead><tr><th>Cant.</th><th>Producto</th><th class="text-right">Precio unit.</th><th class="text-right">Subtotal</th></tr></thead>
+      <tbody>
+      {% for d in factura.detalles %}
+        <tr>
+          <td>{{ d.cantidad }}</td>
+          <td>{{ d.producto.descripcion }}</td>
+          <td class="text-right">{{ d.precio_unitario | moneda }}</td>
+          <td class="text-right">{{ d.subtotal | moneda }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-6 offset-sm-6">
+      <table class="table">
+        <tr><th class="text-right">TOTAL:</th><td class="text-right h4">{{ factura.total | moneda }}</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="no-print">
+    <a href="{{ url_for('facturas.lista') }}" class="btn btn-default"><i class="fas fa-arrow-left"></i> Volver</a>
+    <button onclick="window.print()" class="btn btn-primary float-right"><i class="fas fa-print"></i> Imprimir</button>
+  </div>
+</div>
+{% endblock %}

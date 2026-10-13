@@ -1,0 +1,9 @@
+{# Subplantilla incluida con {% include %}: muestra los mensajes de flash() #}
+{% with mensajes = get_flashed_messages(with_categories=true) %}
+  {% for categoria, mensaje in mensajes %}
+    <div class="alert alert-{{ categoria }} alert-dismissible">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      {{ mensaje }}
+    </div>
+  {% endfor %}
+{% endwith %}

@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}Emitir factura{% endblock %}
+{% block encabezado %}Emitir factura{% endblock %}
+
+{# Un renglón de la factura. Se usa para los renglones que vuelven con error y como molde para "Agregar renglón" #}
+{% macro renglon(id_producto='', cantidad='1') %}
+  <tr>
+    <td>
+      <select name="id_producto" class="form-control form-control-sm sel-producto">
+        <option value="">-- Elegí un producto --</option>
+        {% for p in productos %}
+          <option value="{{ p.id_producto }}" data-precio="{{ p.precio }}" data-stock="{{ p.stock }}"
+                  {% if p.id_producto | string == id_producto | string %}selected{% endif %}>
+            {{ p.descripcion }} (stock: {{ p.stock }})
+          </option>
+        {% endfor %}
+      </select>
+    </td>
+    <td class="text-right align-middle precio">$ 0,00</td>
+    <td><input type="text" inputmode="numeric" name="cantidad" value="{{ cantidad }}" class="form-control form-control-sm cantidad"></td>
+    <td class="text-right align-middle subtotal">$ 0,00</td>
+    <td class="text-right"><button type="button" class="btn btn-xs btn-danger btn-quitar" title="Quitar"><i class="fas fa-times"></i></button></td>
+  </tr>
+{% endmacro %}
+
+{% block content %}
+<form method="POST" novalidate>
+  <!-- Paso 1: seleccionar cliente -->
+  <div class="card card-primary">
+    <div class="card-header"><h3 class="card-title">1. Seleccionar cliente</h3></div>
+    <div class="card-body">
+      <select name="id_cliente" class="form-control">
+        <option value="">-- Elegí un cliente --</option>
+        {% for c in clientes %}
+          <option value="{{ c.id_cliente }}" {% if c.id_cliente == id_cliente %}selected{% endif %}>{{ c.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <!-- Paso 2: agregar productos -->
+  <div class="card card-primary">
+    <div class="card-header">
+      <h3 class="card-title">2. Agregar productos</h3>
+      <div class="card-tools">
+        <button type="button" class="btn btn-sm btn-light" id="btn-agregar"><i class="fas fa-plus"></i> Agregar renglón</button>
+      </div>
+    </div>
+    <div class="card-body p-0 table-responsive">
+      <table class="table mb-0">
+        <thead>
+          <tr><th style="width:45%">Producto</th><th class="text-right">Precio unit.</th><th style="width:110px">Cantidad</th><th class="text-right">Subtotal</th><th></th></tr>
+        </thead>
+        <tbody id="renglones">
+          {% for r in renglones %}{{ renglon(r.id_producto, r.cantidad) }}{% else %}{{ renglon() }}{% endfor %}
+        </tbody>
+        <tfoot>
+          <tr><th colspan="3" class="text-right">TOTAL</th><th class="text-right h5" id="total">$ 0,00</th><th></th></tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- Paso 3: confirmar -->
+  <div class="mb-4">
+    <button type="submit" class="btn btn-success btn-lg"><i class="fas fa-check"></i> Confirmar factura</button>
+    <a href="{{ url_for('facturas.lista') }}" class="btn btn-default btn-lg">Cancelar</a>
+  </div>
+</form>
+
+<template id="molde-renglon">{{ renglon() }}</template>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Solo calcula los importes en pantalla para que el usuario los vea.
+  // El total real lo calcula el servidor con los precios de la base de datos.
+  const moneda = n => "$ " + n.toLocaleString("es-AR", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  const tabla = document.getElementById("renglones");
+
+  function recalcular() {
+    let total = 0;
+    tabla.querySelectorAll("tr").forEach(fila => {
+      const opcion = fila.querySelector(".sel-producto").selectedOptions[0];
+      const precio = parseFloat(opcion.dataset.precio || 0);
+      const cantidad = parseInt(fila.querySelector(".cantidad").value) || 0;
+      fila.querySelector(".precio").textContent = moneda(precio);
+      fila.querySelector(".subtotal").textContent = moneda(precio * cantidad);
+      total += precio * cantidad;
+    });
+    document.getElementById("total").textContent = moneda(total);
+  }
+
+  document.getElementById("btn-agregar").addEventListener("click", () => {
+    tabla.appendChild(document.getElementById("molde-renglon").content.cloneNode(true));
+    recalcular();
+  });
+  tabla.addEventListener("input", recalcular);
+  tabla.addEventListener("change", recalcular);
+  tabla.addEventListener("click", e => {
+    if (e.target.closest(".btn-quitar")) { e.target.closest("tr").remove(); recalcular(); }
+  });
+  recalcular();
+</script>
+{% endblock %}
